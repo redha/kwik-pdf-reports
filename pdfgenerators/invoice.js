@@ -12,74 +12,62 @@ const MARGIN_LEFT = 25;
 const MARGIN_RIGHT = 25;
 const MARGIN_TOP = 15;
 const MARGIN_BOTTOM = 15;
-const ROW_SPACING = 2*4;
-const bodyFontSize = 9;
-const footerFontSize = 7;
+const ROW_SPACING = 6;
+const BODY_FONT_SIZE = 9;
+const FOOTER_FONT_SIZE = 7;
 
 let currentPositionY = MARGIN_TOP;
 let pageNumber = 1;
-let pageFooterHeight = 0;
-let reportFooterHeight = 0;
+let pageFooterHeight = 50;
+let reportFooterHeight = 150;
 let pageHeaderHeight = 0;
 let reportHeaderHeight = 0;
 
 let invoice = new PDFDocument ({size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, left: MARGIN_LEFT, bottom: MARGIN_BOTTOM }});
+invoice.font('Helvetica').lineGap(3);
 invoice.info = { Title: 'Invoice #1234', displayTitle: true, Author: 'You', CreationDate: new Date(), Producer: 'Kwik Gestion', Creator: 'Me', Keywords: 'invoice, 1234, kwik, You, Me'};
 
 const generatePageHeader = function(){
-  currentPositionY = MARGIN_TOP;
-  invoice.lineWidth(30).fillColor("#555");
+  invoice.image('images/logo.png',MAXX - MARGIN_RIGHT - 140, MARGIN_TOP, {width: 140, height: 70})
+  currentPositionY = 15;
+  let stepY = 13;
+
   invoice
-  .fontSize(18)
-  .text('Company Name Here', 30, currentPositionY)
-  .fillColor('#ce4e00')
-  .fontSize(10)
-  .text('Rue du 5 Juillet 85 - N° 13 - MaVille 75200 - Algeria', currentPositionY)
-  .fillColor('#595959')
-  .text('email: email@server.com', 30, currentPositionY + 20 + 20, { width: 200 });
+  .font(`Helvetica-Bold`)
+  .fontSize(2*BODY_FONT_SIZE)
+  .text(data.companyName, MARGIN_LEFT, currentPositionY)
+  .font(`Helvetica`)
+  .fontSize(1.5*BODY_FONT_SIZE)
+  .text(data.companyActivity, MARGIN_LEFT, currentPositionY + 1.7*stepY)
+  .fontSize(BODY_FONT_SIZE)
+  .text(`Capital Social: ${data.companyCapital}`, MARGIN_LEFT, currentPositionY + 3*stepY)
+  .text(`Adresse: ${data.companyAddress}`, MARGIN_LEFT, currentPositionY + 4*stepY)
+  .text(`Tél.: ${data.companyPhone} - Email: ${data.companyEmail}`, MARGIN_LEFT, currentPositionY + 5*stepY)
 
-  currentPositionY += 20 + 20 + 20;
-}
+  currentPositionY += Math.max(currentPositionY + 5*stepY, 50) ;
 
-const generatePageFooter = function(){
-  invoice.lineWidth(0.3).fillColor("#555").fontSize(footerFontSize).lineGap(3);
-
-  let line0 = `Page ${pageNumber} `;  
-  let line1 = data.companyName;
-  let line2 = `Adresse: ${data.companyAddress} `;
-  let line3 = `RC: ${data.companyRC} - IF: ${data.companyIF} - NIS: ${data.companyNIS} - AI: ${data.companyAI} - Tél: ${data.companyPhone} - Email:${data.companyEmail} `;
-  invoice.fontSize(footerFontSize);
-  let h0 = invoice.heightOfString(line0, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  invoice.fontSize(footerFontSize);
-  let h1 = invoice.heightOfString(line1, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT }) 
-  invoice.fontSize(footerFontSize);
-  let h2 = invoice.heightOfString(line2, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT })
-  let h3 = invoice.heightOfString(line3, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  
-  console.log(`${h0}-${h1}-${h2}-${h3}`);
-  
-  let y = MAXY - MARGIN_BOTTOM - (h0 + h1 + h2 + h3);
-  invoice.fontSize(footerFontSize);
-  invoice.text(line0, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  y += h0;
-  invoice
-  .moveTo(MARGIN_LEFT, y - 0.3*h0)
-  .lineTo(MAXX - MARGIN_RIGHT, y - 0.4*h0)
+  invoice.lineWidth(1)
+  .moveTo(MARGIN_LEFT, currentPositionY)
+  .lineTo(MAXX - MARGIN_RIGHT, currentPositionY)
   .stroke();
 
-  invoice.fontSize(bodyFontSize);
-  invoice.text(line1, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  y += h1;
-  invoice.fontSize(footerFontSize);
-  invoice.text(line2, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  y += h2;
-  invoice.text(line3, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
-  y += h3;
-  invoice.fontSize(bodyFontSize);
-  invoice.lineGap(0);
+  currentPositionY += 13;
+
 }
 
-const generateReportFooter = function(){
+const generateReportHeader = function(){
+  invoice
+  .font(`Helvetica-Bold`)
+  .fontSize(15)
+  .text(`REPORT HEADER HERE...`, MARGIN_LEFT + 5, currentPositionY, { width: MAXX, align: 'center' }),
+  currentPositionY += invoice.heightOfString(`REPORT HEADER HERE...`, MARGIN_LEFT, currentPositionY, { width: MAXX, align: 'center' })
+   + 20;
+}
+
+const generateDetailsHeader = function(){
+  invoice.font('Helvetica-Bold');
+  generateDetail({ line: '#', item: "Code", description: "Description", up: "PU", qty: "Qté", vat: "TVA%", discPercent: "Rem%", amount: "Montant" });
+  invoice.font('Helvetica');
 }
 
 const generateDetail = function(line){
@@ -90,7 +78,7 @@ const generateDetail = function(line){
   let numberOptions = { lineBreak: true, ellipsis: true, align: "right" };
 
   invoice.fontSize(9)
-  .text(line.item, 30, currentPositionY, { width: 35, ...textOptions })
+  .text(line.item, MARGIN_LEFT + 5, currentPositionY, { width: 35, ...textOptions })
   .text(line.description, 70, currentPositionY, { width: 200, ...textOptions })
   .text(line.up, 275, currentPositionY, { width: 65, ...numberOptions })
   .text(line.qty, 345, currentPositionY, { width: 65, ...numberOptions})
@@ -103,13 +91,60 @@ const generateDetail = function(line){
 
   currentPositionY += Math.max(itemHeight, descHeight) + ROW_SPACING;
 
-  invoice.moveTo(MARGIN_LEFT, currentPositionY - ROW_SPACING/2)
-    .lineTo(MAXX - MARGIN_RIGHT, currentPositionY - ROW_SPACING/2)
-    .strokeColor("#ccc")
+  invoice.moveTo(MARGIN_LEFT, currentPositionY - 7)
+    .lineTo(MAXX - MARGIN_RIGHT, currentPositionY - 7)
     .stroke();
 }
 
-function generateInvoice (invoiceData, res, resType = 'link'){
+const generateReportFooter = function(){
+  invoice
+  .font(`Helvetica-Bold`)
+  .fontSize(15)
+  .text(`...REPORT FOOTER HERE...`, MARGIN_LEFT, MAXY - MARGIN_BOTTOM - pageFooterHeight - reportFooterHeight , { width: MAXX, align: 'center'}),
+  currentPositionY += invoice.heightOfString(`...REPORT FOOTER HERE...`, MARGIN_LEFT, currentPositionY, { width: MAXX, align: 'center'}) + 10;
+}
+
+const generatePageFooter = function(){
+  invoice.lineWidth(0.3).fontSize(FOOTER_FONT_SIZE);
+
+  let line0 = `Page ${pageNumber} `;  
+  let line1 = data.companyName;
+  let line2 = `Adresse: ${data.companyAddress} `;
+  let line3 = `RC: ${data.companyRC} - IF: ${data.companyIF} - NIS: ${data.companyNIS} - AI: ${data.companyAI} - Tél: ${data.companyPhone} - Email:${data.companyEmail} `;
+
+  invoice.fontSize(FOOTER_FONT_SIZE);
+  let h0 = invoice.heightOfString(line0, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  invoice.font('Helvetica-Bold').fontSize(FOOTER_FONT_SIZE);
+  let h1 = invoice.heightOfString(line1, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT }) 
+  invoice.font('Helvetica').fontSize(FOOTER_FONT_SIZE);
+  let h2 = invoice.heightOfString(line2, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT })
+  let h3 = invoice.heightOfString(line3, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  
+  let y = MAXY - MARGIN_BOTTOM - (h0 + h1 + h2 + h3);
+
+  invoice.fontSize(FOOTER_FONT_SIZE);
+  invoice.text(line0, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  y += h0;
+  invoice
+  .moveTo(MARGIN_LEFT, y - 0.3*h0)
+  .lineTo(MAXX - MARGIN_RIGHT, y - 0.4*h0)
+  .stroke();
+
+  invoice
+  .font('Helvetica-Bold')
+  .fontSize(BODY_FONT_SIZE)
+  .text(line1, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT })
+  .font('Helvetica');
+  y += h1;
+  invoice.fontSize(FOOTER_FONT_SIZE);
+  invoice.text(line2, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  y += h2;
+  invoice.text(line3, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  y += h3;
+  invoice.fontSize(BODY_FONT_SIZE);
+}
+
+const generateInvoice = function (invoiceData, res, resType = 'link'){
   data = invoiceData;
   if (resType == 'link'){
     let fileName = `invoice-${new Date().getTime()}.pdf`;
@@ -117,28 +152,32 @@ function generateInvoice (invoiceData, res, resType = 'link'){
       console.log(`fileName is : http://localhost:3000/output/${fileName}`);
       invoice.pipe(fs.createWriteStream(`./public/output/${fileName}`));
   
-      generatePageHeader(invoice);
-      generatePageFooter(invoice);
+      generatePageHeader();
+      generateReportHeader();
+      generatePageFooter();
+      generateDetailsHeader()
 
       invoice.on('pageAdded', () => {
         pageNumber++;
-        generatePageHeader(invoice);
-        generatePageFooter(invoice);
+        generatePageHeader();
+        generateReportHeader();
+        generatePageFooter();
+        generateDetailsHeader()
       });
-  
+
       data.content.forEach(invoiceLine => {
         generateDetail(invoiceLine)
       });
       generateReportFooter(invoice)
       invoice.end();
-      return { result: true, message: `http://localhost:3000/output/${fileName}`};
+      return { error: false, message: `http://localhost:3000/output/${fileName}`};
     }
     catch(e){
-      return { error : true, message: e.message};
+      return { error: true, message: e.message};
     }
   }
   else{
-    return { error : true, message: `The method ${resType} isn't Implemented Yet !`}
+    return { error: true, message: `The method ${resType} isn't Implemented Yet !`}
   }
 }
 

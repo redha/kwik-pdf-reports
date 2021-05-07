@@ -1,5 +1,5 @@
 const invoiceData = {
-  companyName: "My Company Name",
+  companyName: "The Kwik Company",
   companyActivity: "Vente / Livraison Articles de Beauté",
   companyCapital: "15.000.000 DA",
   companyAddress: "16, Rue du bon sens MavyVille 56900 - Ain El Makan - Algerie",
@@ -83,6 +83,7 @@ const invoiceData = {
     { line: 52, item: "P0052", description: "Product P0052 From Ctr 052", up: 577.76, qty: 6, vat: 19, discPercent: 6, amount: 3258.57 },
     { line: 53, item: "P0053", description: "Product P0053 From Ctr 053", up: 579.89, qty: 9, vat: 19, discPercent: 9, amount: 4749.3 },
     { line: 54, item: "P0054", description: "Product P0054 From Ctr 054", up: 577.02, qty: 12, vat: 19, discPercent: 2, amount: 6785.76 },
+/*
     { line: 55, item: "P0055", description: "Product P0055 From Ctr 055", up: 579.15, qty: 15, vat: 19, discPercent: 5, amount: 8252.89 },
     { line: 56, item: "P0056", description: "Product P0056 From Ctr 056", up: 581.28, qty: 18, vat: 19, discPercent: 8, amount: 9626 },
     { line: 57, item: "P0057", description: "Product P0057 From Ctr 057", up: 578.41, qty: 4, vat: 19, discPercent: 1, amount: 2290.5 },
@@ -94,7 +95,8 @@ const invoiceData = {
     { line: 63, item: "P0063", description: "Product P0063 From Ctr 063", up: 581.19, qty: 5, vat: 19, discPercent: 9, amount: 2644.41 },
     { line: 64, item: "P0064", description: "Product P0064 From Ctr 064", up: 578.32, qty: 8, vat: 19, discPercent: 2, amount: 4534.03 },
     { line: 65, item: "P0065", description: "Product P0065 From Ctr 065", up: 580.45, qty: 11, vat: 19, discPercent: 5, amount: 6065.7 },
-    ]
+*/
+  ]
 }
 
 module.exports = {
