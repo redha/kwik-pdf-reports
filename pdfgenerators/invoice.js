@@ -70,12 +70,23 @@ const generateDetailsHeader = function(){
   invoice.font('Helvetica');
 }
 
-const generateDetail = function(line){
-
-  if (currentPositionY + MARGIN_BOTTOM + 120 > MAXY) invoice.addPage();
+const generateDetail = function(line, isLastRecord = false){
 
   let textOptions = { lineBreak: true, ellipsis: true };
   let numberOptions = { lineBreak: true, ellipsis: true, align: "right" };
+  
+  let maxHeight = invoice.heightOfString(line.item, { width: 35, ...textOptions });
+  maxHeight = Math.max(maxHeight, invoice.heightOfString(line.description, { width: 200, ...textOptions }));
+
+  if (currentPositionY 
+      + maxHeight 
+      + MARGIN_BOTTOM
+      + (isLastRecord ? reportFooterHeight : 0)    // on the last record, add report footer to 
+      + pageFooterHeight      > MAXY){
+    console.log(`§§§§§§ §§§§§§ ADDING PAGE NOWWWWWW`);
+    currentPositionY = MARGIN_TOP;
+    invoice.addPage();
+  }
 
   invoice.fontSize(9)
   .text(line.item, MARGIN_LEFT + 5, currentPositionY, { width: 35, ...textOptions })
@@ -86,10 +97,7 @@ const generateDetail = function(line){
   .text(line.amount, 445, currentPositionY, { width: 65, ...numberOptions })
   .text(line.vat, 510, currentPositionY, { width: 35, ...numberOptions });
 
-  let itemHeight = invoice.heightOfString(line.item, { width: 35, ...textOptions });
-  let descHeight = invoice.heightOfString(line.description, { width: 200, ...textOptions });
-
-  currentPositionY += Math.max(itemHeight, descHeight) + ROW_SPACING;
+  currentPositionY += maxHeight + ROW_SPACING;
 
   invoice.moveTo(MARGIN_LEFT, currentPositionY - 7)
     .lineTo(MAXX - MARGIN_RIGHT, currentPositionY - 7)
@@ -165,9 +173,12 @@ const generateInvoice = function (invoiceData, res, resType = 'link'){
         generateDetailsHeader()
       });
 
-      data.content.forEach(invoiceLine => {
-        generateDetail(invoiceLine)
-      });
+      for (let i = 0; i < data.content.length - 1; i++){
+        generateDetail(data.content[i]);
+      }
+      if (data.content.length > 0){ // check if the content (details) array is not empty
+        generateDetail(data.content[data.content.length - 1], true) // check if there no space left for footer sections on last page (it will add a new page if so)
+      }
       generateReportFooter(invoice)
       invoice.end();
       return { error: false, message: `http://localhost:3000/output/${fileName}`};
