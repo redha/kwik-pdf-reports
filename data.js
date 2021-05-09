@@ -20,12 +20,13 @@ const invoiceData = {
   clientAI: "12345678901",
   clientNIS: "123456789012345",
 
-  rawAmount: 474378.85,
-  discountAmount: 0,
-  discountPercent: 0,
-  netAmount: 474378.85,
-  vatAmount: 564510.79,
-  amountit: 90131.94,
+  rawAmount: 10000.00,
+  discountAmount: 500,
+  discountPercent: 5,
+  netAmount: 9500.00,
+  vatAmount: 1805.00,
+  stampAmount: 113.05,
+  amountit: 11418.05,
 
   content: [
     { line: 0, item: "P0000", description: "Product P0000 From Ctr 000 + Product P0000 From Ctr 000 + Product P0000 From Ctr 000", up: 15765579.13, qty: 88888.88, vat: 19, discPercent: 3, amount: 88888888.88 },
@@ -83,7 +84,7 @@ const invoiceData = {
     { line: 52, item: "P0052", description: "Product P0052 From Ctr 052", up: 577.76, qty: 6, vat: 19, discPercent: 6, amount: 3258.57 },
     { line: 53, item: "P0053", description: "Product P0053 From Ctr 053", up: 579.89, qty: 9, vat: 19, discPercent: 9, amount: 4749.3 },
     { line: 54, item: "P0054", description: "Product P0054 From Ctr 054", up: 577.02, qty: 12, vat: 19, discPercent: 2, amount: 6785.76 },
-/*
+
     { line: 55, item: "P0055", description: "Product P0055 From Ctr 055", up: 579.15, qty: 15, vat: 19, discPercent: 5, amount: 8252.89 },
     { line: 56, item: "P0056", description: "Product P0056 From Ctr 056", up: 581.28, qty: 18, vat: 19, discPercent: 8, amount: 9626 },
     { line: 57, item: "P0057", description: "Product P0057 From Ctr 057", up: 578.41, qty: 4, vat: 19, discPercent: 1, amount: 2290.5 },
@@ -91,8 +92,8 @@ const invoiceData = {
     { line: 59, item: "P0059", description: "Product P0059 From Ctr 059", up: 577.67, qty: 10, vat: 19, discPercent: 7, amount: 5372.33 },
     { line: 60, item: "P0060", description: "Product P0060 From Ctr 060", up: 579.8, qty: 13, vat: 19, discPercent: 0, amount: 7537.4 },
     { line: 61, item: "P0061", description: "Product P0061 From Ctr 061", up: 581.93, qty: 16, vat: 19, discPercent: 3, amount: 9031.55 },
-    { line: 62, item: "P0062", description: "Product P0062 From Ctr 062", up: 579.06, qty: 19, vat: 19, discPercent: 6, amount: 10342.01 },
-    { line: 63, item: "P0063", description: "Product P0063 From Ctr 063", up: 581.19, qty: 5, vat: 19, discPercent: 9, amount: 2644.41 },
+/*     { line: 62, item: "P0062", description: "Product P0062 From Ctr 062", up: 579.06, qty: 19, vat: 19, discPercent: 6, amount: 10342.01 },
+   { line: 63, item: "P0063", description: "Product P0063 From Ctr 063", up: 581.19, qty: 5, vat: 19, discPercent: 9, amount: 2644.41 },
     { line: 64, item: "P0064", description: "Product P0064 From Ctr 064", up: 578.32, qty: 8, vat: 19, discPercent: 2, amount: 4534.03 },
     { line: 65, item: "P0065", description: "Product P0065 From Ctr 065", up: 580.45, qty: 11, vat: 19, discPercent: 5, amount: 6065.7 },
 */

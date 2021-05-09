@@ -11,17 +11,33 @@ const MAXY = 841;
 const MARGIN_LEFT = 25;
 const MARGIN_RIGHT = 25;
 const MARGIN_TOP = 15;
-const MARGIN_BOTTOM = 15;
+const MARGIN_BOTTOM = 5;
 const ROW_SPACING = 6;
+// Details Section
+const detailLeftMargin = 5;
+const itemStartAt = MARGIN_LEFT + detailLeftMargin;
+const itemWidth = 35;
+const descriptionStartAt = itemStartAt + itemWidth + detailLeftMargin
+const descriptionWidth = 200;
+const unitPriceStartAt = descriptionStartAt + descriptionWidth + detailLeftMargin
+const unitPriceWidth = 65;
+const qtyStartAt = unitPriceStartAt + unitPriceWidth + detailLeftMargin;
+const qtyWidth = 65;
+const discountPercentStartAt = qtyStartAt + qtyWidth + detailLeftMargin;
+const discountPercentWidth = 35;
+const amountStartAt = discountPercentStartAt + discountPercentWidth + detailLeftMargin;
+const amountWidth = 65;
+const vatPercentStartAt = amountStartAt + amountWidth + detailLeftMargin;
+const vatPercentWidth = 35;
+
 const BODY_FONT_SIZE = 9;
 const FOOTER_FONT_SIZE = 7;
 
 let currentPositionY = MARGIN_TOP;
 let pageNumber = 1;
-let pageFooterHeight = 50;
-let reportFooterHeight = 150;
-let pageHeaderHeight = 0;
-let reportHeaderHeight = 0;
+let pageFooterHeight = null;
+let reportFooterHeight = null;
+
 
 let invoice = new PDFDocument ({size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, left: MARGIN_LEFT, bottom: MARGIN_BOTTOM }});
 invoice.font('Helvetica').lineGap(3);
@@ -56,6 +72,16 @@ const generatePageHeader = function(){
 }
 
 const generateReportHeader = function(){
+/*
+  clientName: "My client Name",
+  clientAddress: "25, Rue de La Liberté MavyVille 56900 - Ain El Makan - Algerie",
+  clientPhone: "+213 555 55 55 55",
+  clientEmail: "email@example.com",
+  clientRC: "456798A21",
+  clientIF: "123456789012345",
+  clientAI: "12345678901",
+  clientNIS: "123456789012345",
+*/
   invoice
   .font(`Helvetica-Bold`)
   .fontSize(15)
@@ -81,21 +107,20 @@ const generateDetail = function(line, isLastRecord = false){
   if (currentPositionY 
       + maxHeight 
       + MARGIN_BOTTOM
-      + (isLastRecord ? reportFooterHeight : 0)    // on the last record, add report footer to 
+      + (isLastRecord ? reportFooterHeight : 0)    // on the last record, add report footer too
       + pageFooterHeight      > MAXY){
-    console.log(`§§§§§§ §§§§§§ ADDING PAGE NOWWWWWW`);
     currentPositionY = MARGIN_TOP;
     invoice.addPage();
   }
 
   invoice.fontSize(9)
-  .text(line.item, MARGIN_LEFT + 5, currentPositionY, { width: 35, ...textOptions })
-  .text(line.description, 70, currentPositionY, { width: 200, ...textOptions })
-  .text(line.up, 275, currentPositionY, { width: 65, ...numberOptions })
-  .text(line.qty, 345, currentPositionY, { width: 65, ...numberOptions})
-  .text(line.discPercent, 410, currentPositionY, { width: 35, ...numberOptions })
-  .text(line.amount, 445, currentPositionY, { width: 65, ...numberOptions })
-  .text(line.vat, 510, currentPositionY, { width: 35, ...numberOptions });
+  .text(line.item, itemStartAt, currentPositionY, { width: itemWidth, ...textOptions })
+  .text(line.description, descriptionStartAt, currentPositionY, { width: descriptionWidth, ...textOptions })
+  .text(line.up, unitPriceStartAt, currentPositionY, { width: unitPriceWidth, ...numberOptions })
+  .text(line.qty, qtyStartAt, currentPositionY, { width: qtyWidth, ...numberOptions})
+  .text(line.discPercent, discountPercentStartAt, currentPositionY, { width: discountPercentWidth, ...numberOptions })
+  .text(line.amount, amountStartAt, currentPositionY, { width: amountWidth, ...numberOptions })
+  .text(line.vat, vatPercentStartAt, currentPositionY, { width: vatPercentWidth, ...numberOptions });
 
   currentPositionY += maxHeight + ROW_SPACING;
 
@@ -104,12 +129,61 @@ const generateDetail = function(line, isLastRecord = false){
     .stroke();
 }
 
-const generateReportFooter = function(){
-  invoice
-  .font(`Helvetica-Bold`)
-  .fontSize(15)
-  .text(`...REPORT FOOTER HERE...`, MARGIN_LEFT, MAXY - MARGIN_BOTTOM - pageFooterHeight - reportFooterHeight , { width: MAXX, align: 'center'}),
-  currentPositionY += invoice.heightOfString(`...REPORT FOOTER HERE...`, MARGIN_LEFT, currentPositionY, { width: MAXX, align: 'center'}) + 10;
+const generateReportFooter = function(calculateOnly = false){
+  const x1 = qtyStartAt;
+  const x2 = amountStartAt;
+  let options1 = { width: qtyWidth + detailLeftMargin + discountPercentWidth };
+  let options2 = { align: 'right', width: amountWidth + detailLeftMargin + vatPercentWidth };
+  // console.log(`options1: ${JSON.stringify(options1)}`);
+  // console.log(`options2: ${JSON.stringify(options2)}`);
+
+  invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 1);
+  let startY = MARGIN_TOP; // Let's suppose we'll start at the top of the page
+  
+  let h1 = invoice.heightOfString(`Montant HT`, x1, startY, options1);
+  let h2 = (data.discountAmount ? invoice.heightOfString(`Remise (${data.discountPercent.toFixed(2)}%)`, x1, startY + h1, options1) : 0);
+  let h3 = (data.discountAmount ? invoice.heightOfString(`Net HT`, x1, startY + h1 + h2, options1) : 0);
+  let h4 = invoice.heightOfString(`TVA`, x1, startY + h1 + h2 + h3, options1);
+  let h5 = invoice.heightOfString(`Timbre`, x1, startY + h1 + h2 + h3 + h4, options1);
+  let h6 = invoice.heightOfString(`TTC`, x1, startY + h1 + h2 + h3 + h4 + h5, options1);
+  
+  invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
+  h1 = Math.max(h1, invoice.heightOfString(data.rawAmount.toFixed(2), x2, startY, options2));
+  h2 = Math.max(h2, (data.discountAmount ? invoice.heightOfString(data.discountAmount.toFixed(2), x2, startY + h1, options2) : 0 ));
+  h3 = Math.max(h2, (data.discountAmount ? invoice.heightOfString(data.netAmount.toFixed(2), x2, startY + h1 + h2, options2) : 0 ));
+  h4 = Math.max(h4, invoice.heightOfString( data.vatAmount.toFixed(2), x2, startY + h1 + h2 + h3, options2));
+  h5 = Math.max(h5, invoice.heightOfString( data.stampAmount.toFixed(2), x2, startY + h1 + h2 + h3 + h4, options2));
+  h6 = Math.max(h6, invoice.heightOfString( data.amountit.toFixed(2), x2, startY + h1 + h2 + h3 + h4 + h5, options2));
+
+  if (!reportFooterHeight){
+    reportFooterHeight = h1 + h2 + h3 + h4 + h5 + h6 + 2*ROW_SPACING;
+  }
+  if (calculateOnly) return;
+
+  currentPositionY = MAXY - (MARGIN_BOTTOM + reportFooterHeight + pageFooterHeight);
+
+  invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 1);
+  invoice.text(`Montant HT`, x1, currentPositionY);
+  if (data.discountAmount){
+    invoice.text(`Remise (${data.discountPercent.toFixed(2)}%)`, x1, currentPositionY + h1, options1);
+    invoice.text(`Net HT`, x1, currentPositionY + h1 + h2, options1);
+  }
+  invoice.text(`TVA`, x1, currentPositionY + h1 + h2 + h3, options1);
+  invoice.text(`Timbre`, x1, currentPositionY + h1 + h2 + h3 + h4, options1);
+  invoice.text(`TTC`, x1, currentPositionY + h1 + h2 + h3 + h4 + h5, options1);
+
+
+  invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
+  invoice.text(data.rawAmount.toFixed(2), x2, currentPositionY, options2);
+  if (data.discountAmount){
+    invoice.text(data.discountAmount.toFixed(2), x2, currentPositionY + h1, options2);
+    invoice.text(data.netAmount.toFixed(2), x2, currentPositionY + h1 + h2, options2);
+  };
+  invoice.text(data.vatAmount.toFixed(2), x2, currentPositionY + h1 + h2 + h3, options2);
+  invoice.text(data.stampAmount.toFixed(2), x2, currentPositionY + h1 + h2 + h3 + h4, options2);
+  invoice.text(data.amountit.toFixed(2), x2, currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
+
+  currentPositionY += reportFooterHeight;
 }
 
 const generatePageFooter = function(){
@@ -127,8 +201,11 @@ const generatePageFooter = function(){
   invoice.font('Helvetica').fontSize(FOOTER_FONT_SIZE);
   let h2 = invoice.heightOfString(line2, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT })
   let h3 = invoice.heightOfString(line3, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
+  if (!pageFooterHeight){
+    pageFooterHeight = h0 + h1 + h2 + h3 + 2*ROW_SPACING
+  }
   
-  let y = MAXY - MARGIN_BOTTOM - (h0 + h1 + h2 + h3);
+  let y = MAXY - MARGIN_BOTTOM - pageFooterHeight;
 
   invoice.fontSize(FOOTER_FONT_SIZE);
   invoice.text(line0, MARGIN_RIGHT, y, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
@@ -163,7 +240,8 @@ const generateInvoice = function (invoiceData, res, resType = 'link'){
       generatePageHeader();
       generateReportHeader();
       generatePageFooter();
-      generateDetailsHeader()
+      generateDetailsHeader();
+      generateReportFooter(true);
 
       invoice.on('pageAdded', () => {
         pageNumber++;
@@ -179,7 +257,7 @@ const generateInvoice = function (invoiceData, res, resType = 'link'){
       if (data.content.length > 0){ // check if the content (details) array is not empty
         generateDetail(data.content[data.content.length - 1], true) // check if there no space left for footer sections on last page (it will add a new page if so)
       }
-      generateReportFooter(invoice)
+      generateReportFooter()
       invoice.end();
       return { error: false, message: `http://localhost:3000/output/${fileName}`};
     }
