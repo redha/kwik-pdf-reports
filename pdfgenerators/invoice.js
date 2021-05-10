@@ -12,7 +12,7 @@ const MARGIN_LEFT = 25;
 const MARGIN_RIGHT = 25;
 const MARGIN_TOP = 15;
 const MARGIN_BOTTOM = 5;
-const ROW_SPACING = 6;
+const ROW_SPACING = 5;
 // Details Section
 const detailLeftMargin = 5;
 const itemStartAt = MARGIN_LEFT + detailLeftMargin;
@@ -51,14 +51,14 @@ const generatePageHeader = function(){
   invoice
   .font(`Helvetica-Bold`)
   .fontSize(2*BODY_FONT_SIZE)
-  .text(data.companyName, MARGIN_LEFT, currentPositionY)
+  .text(data.companyName, itemStartAt, currentPositionY)
   .font(`Helvetica`)
   .fontSize(1.5*BODY_FONT_SIZE)
-  .text(data.companyActivity, MARGIN_LEFT, currentPositionY + 1.7*stepY)
+  .text(data.companyActivity, itemStartAt, currentPositionY + 1.7*stepY)
   .fontSize(BODY_FONT_SIZE)
-  .text(`Capital Social: ${data.companyCapital}`, MARGIN_LEFT, currentPositionY + 3*stepY)
-  .text(`Adresse: ${data.companyAddress}`, MARGIN_LEFT, currentPositionY + 4*stepY)
-  .text(`Tél.: ${data.companyPhone} - Email: ${data.companyEmail}`, MARGIN_LEFT, currentPositionY + 5*stepY)
+  .text(`Capital Social: ${data.companyCapital}`, itemStartAt, currentPositionY + 3*stepY)
+  .text(`Adresse: ${data.companyAddress}`, itemStartAt, currentPositionY + 4*stepY)
+  .text(`Tél.: ${data.companyPhone} - Email: ${data.companyEmail}`, itemStartAt, currentPositionY + 5*stepY)
 
   currentPositionY += Math.max(currentPositionY + 5*stepY, 50) ;
 
@@ -72,22 +72,36 @@ const generatePageHeader = function(){
 }
 
 const generateReportHeader = function(){
-/*
-  clientName: "My client Name",
-  clientAddress: "25, Rue de La Liberté MavyVille 56900 - Ain El Makan - Algerie",
-  clientPhone: "+213 555 55 55 55",
-  clientEmail: "email@example.com",
-  clientRC: "456798A21",
-  clientIF: "123456789012345",
-  clientAI: "12345678901",
-  clientNIS: "123456789012345",
-*/
+  invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 5);
+  invoice.text(`${data.docType} ${data.reference}`, itemStartAt, currentPositionY);
+  let height = invoice.heightOfString(`${data.docType} ${data.reference}`, itemStartAt, currentPositionY);
+  
+  invoice.font(`Helvetica`).fontSize(BODY_FONT_SIZE);
+  invoice.text(`Date: ${data.date}`, discountPercentStartAt, currentPositionY, {width: MAXX - MARGIN_RIGHT - discountPercentStartAt, align: "right"});
+  height = Math.max(height, invoice.heightOfString(`Date: ${data.date}`, discountPercentStartAt, currentPositionY, {width: MAXX - MARGIN_RIGHT - discountPercentStartAt, align: "right"}) );
+  currentPositionY += height + 2*ROW_SPACING;
+
+  let initialY = currentPositionY - ROW_SPACING;
+  invoice.text(`Code: ${data.code}`, unitPriceStartAt, currentPositionY);
+  currentPositionY += invoice.heightOfString(`Code: ${data.code}`, unitPriceStartAt, currentPositionY);
+
+  invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE);
+  invoice.text(`${data.name}`, unitPriceStartAt, currentPositionY);
+  currentPositionY += invoice.heightOfString(`${data.name}`, unitPriceStartAt, currentPositionY);
+
+  invoice.font(`Helvetica`);
+  invoice.text(`${data.address}`, unitPriceStartAt, currentPositionY);
+  currentPositionY += invoice.heightOfString(`Adresse :  ${data.address}`, unitPriceStartAt, currentPositionY);
+
+  invoice.fontSize(BODY_FONT_SIZE - 2);
+  invoice.text(`RC:${data.RC} - IF: ${data.IF} - AI: ${data.AI} - NIS:  ${data.NIS}`, unitPriceStartAt, currentPositionY);
+  currentPositionY += invoice.heightOfString(`RC:${data.RC} - IF: ${data.IF} - AI: ${data.AI} - NIS:  ${data.NIS}`, unitPriceStartAt, currentPositionY);
   invoice
-  .font(`Helvetica-Bold`)
-  .fontSize(15)
-  .text(`REPORT HEADER HERE...`, MARGIN_LEFT + 5, currentPositionY, { width: MAXX, align: 'center' }),
-  currentPositionY += invoice.heightOfString(`REPORT HEADER HERE...`, MARGIN_LEFT, currentPositionY, { width: MAXX, align: 'center' })
-   + 20;
+  .lineWidth(0.2)
+  .roundedRect(unitPriceStartAt - 5, initialY, MAXX - MARGIN_RIGHT - unitPriceStartAt, currentPositionY - initialY, 3)
+  .stroke();
+
+  currentPositionY += 5*ROW_SPACING;
 }
 
 const generateDetailsHeader = function(){
@@ -101,8 +115,8 @@ const generateDetail = function(line, isLastRecord = false){
   let textOptions = { lineBreak: true, ellipsis: true };
   let numberOptions = { lineBreak: true, ellipsis: true, align: "right" };
   
-  let maxHeight = invoice.heightOfString(line.item, { width: 35, ...textOptions });
-  maxHeight = Math.max(maxHeight, invoice.heightOfString(line.description, { width: 200, ...textOptions }));
+  let maxHeight = invoice.heightOfString(line.item, { width: itemWidth, ...textOptions });
+  maxHeight = Math.max(maxHeight, invoice.heightOfString(line.description, { width: descriptionWidth, ...textOptions }));
 
   if (currentPositionY 
       + maxHeight 
@@ -112,20 +126,32 @@ const generateDetail = function(line, isLastRecord = false){
     currentPositionY = MARGIN_TOP;
     invoice.addPage();
   }
-
-  invoice.fontSize(9)
-  .text(line.item, itemStartAt, currentPositionY, { width: itemWidth, ...textOptions })
-  .text(line.description, descriptionStartAt, currentPositionY, { width: descriptionWidth, ...textOptions })
-  .text(line.up, unitPriceStartAt, currentPositionY, { width: unitPriceWidth, ...numberOptions })
-  .text(line.qty, qtyStartAt, currentPositionY, { width: qtyWidth, ...numberOptions})
-  .text(line.discPercent, discountPercentStartAt, currentPositionY, { width: discountPercentWidth, ...numberOptions })
-  .text(line.amount, amountStartAt, currentPositionY, { width: amountWidth, ...numberOptions })
-  .text(line.vat, vatPercentStartAt, currentPositionY, { width: vatPercentWidth, ...numberOptions });
+  invoice.fontSize(9);
+  if(isNaN(line.up)){ // return true when generating details Header
+    invoice
+    .text(line.item, itemStartAt, currentPositionY, { width: itemWidth, ...textOptions })
+    .text(line.description, descriptionStartAt, currentPositionY, { width: descriptionWidth, ...textOptions })
+    .text(line.up, unitPriceStartAt, currentPositionY, { width: unitPriceWidth, ...numberOptions })
+    .text(line.qty, qtyStartAt, currentPositionY, { width: qtyWidth, ...numberOptions})
+    .text(line.discPercent, discountPercentStartAt, currentPositionY, { width: discountPercentWidth, ...numberOptions })
+    .text(line.amount, amountStartAt, currentPositionY, { width: amountWidth, ...numberOptions })
+    .text(line.vat, vatPercentStartAt, currentPositionY, { width: vatPercentWidth, ...numberOptions });
+  }
+  else{
+    invoice
+    .text(line.item, itemStartAt, currentPositionY, { width: itemWidth, ...textOptions })
+    .text(line.description, descriptionStartAt, currentPositionY, { width: descriptionWidth, ...textOptions })
+    .text(line.up.toFixed(2), unitPriceStartAt, currentPositionY, { width: unitPriceWidth, ...numberOptions })
+    .text(line.qty.toFixed(2), qtyStartAt, currentPositionY, { width: qtyWidth, ...numberOptions})
+    .text(line.discPercent.toFixed(2), discountPercentStartAt, currentPositionY, { width: discountPercentWidth, ...numberOptions })
+    .text(line.amount.toFixed(2), amountStartAt, currentPositionY, { width: amountWidth, ...numberOptions })
+    .text(line.vat.toFixed(2), vatPercentStartAt, currentPositionY, { width: vatPercentWidth, ...numberOptions });
+  }
 
   currentPositionY += maxHeight + ROW_SPACING;
 
-  invoice.moveTo(MARGIN_LEFT, currentPositionY - 7)
-    .lineTo(MAXX - MARGIN_RIGHT, currentPositionY - 7)
+  invoice.moveTo(MARGIN_LEFT, currentPositionY - ROW_SPACING)
+    .lineTo(MAXX - MARGIN_RIGHT, currentPositionY - ROW_SPACING)
     .stroke();
 }
 
@@ -134,8 +160,6 @@ const generateReportFooter = function(calculateOnly = false){
   const x2 = amountStartAt;
   let options1 = { width: qtyWidth + detailLeftMargin + discountPercentWidth };
   let options2 = { align: 'right', width: amountWidth + detailLeftMargin + vatPercentWidth };
-  // console.log(`options1: ${JSON.stringify(options1)}`);
-  // console.log(`options2: ${JSON.stringify(options2)}`);
 
   invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 1);
   let startY = MARGIN_TOP; // Let's suppose we'll start at the top of the page
@@ -182,6 +206,11 @@ const generateReportFooter = function(calculateOnly = false){
   invoice.text(data.vatAmount.toFixed(2), x2, currentPositionY + h1 + h2 + h3, options2);
   invoice.text(data.stampAmount.toFixed(2), x2, currentPositionY + h1 + h2 + h3 + h4, options2);
   invoice.text(data.amountit.toFixed(2), x2, currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
+
+  invoice
+  .lineWidth(0.2)
+  .roundedRect(x1 - 5, MAXY - (MARGIN_BOTTOM + reportFooterHeight + pageFooterHeight + 2*ROW_SPACING), MAXX - x1 - MARGIN_RIGHT, reportFooterHeight, 3)
+  .stroke();
 
   currentPositionY += reportFooterHeight;
 }

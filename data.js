@@ -11,15 +11,19 @@ const invoiceData = {
   companyAI: "12345678901",
   companyNIS: "123456789012345",
 
-  clientName: "My client Name",
-  clientAddress: "25, Rue de La Liberté MavyVille 56900 - Ain El Makan - Algerie",
-  clientPhone: "+213 555 55 55 55",
-  clientEmail: "email@example.com",
-  clientRC: "456798A21",
-  clientIF: "123456789012345",
-  clientAI: "12345678901",
-  clientNIS: "123456789012345",
+  code: "CL00156",
+  name: "My Client Name",
+  address: "25, Rue de La Liberté MavyVille 56900 - Ain El Makan - Algerie",
+  phone: "+213 555 55 55 55",
+  email: "email@example.com",
+  RC: "456798A21",
+  IF: "123456789012345",
+  AI: "12345678901",
+  NIS: "123456789012345",
 
+  docType: "Facture",
+  reference: "INV002158/21",
+  date: "15-07-2020",
   rawAmount: 10000.00,
   discountAmount: 500,
   discountPercent: 5,
@@ -29,8 +33,14 @@ const invoiceData = {
   amountit: 11418.05,
 
   content: [
-    { line: 0, item: "P0000", description: "Product P0000 From Ctr 000 + Product P0000 From Ctr 000 + Product P0000 From Ctr 000", up: 15765579.13, qty: 88888.88, vat: 19, discPercent: 3, amount: 88888888.88 },
-    { line: 1, item: "P0001", description: "Product P0001 From Ctr 001", up: 579.13, qty: 6, vat: 19, discPercent: 3, amount: 3370.54 },
+    { line: 0, item: "P0000", description: "Product P0000 From Ctr 000 + Product P0000 From Ctr 000 + Product P0000 From Ctr 01 02 03 04 05 06 07 08 09 10", up: 15765579.13, qty: 88888.88, vat: 19, discPercent: 3, amount: 88888888.88 },
+    { line: 1, item: "P0001", 
+    description: 
+`Product 
+P0001 
+From 
+Ctr 
+001`, up: 579.13, qty: 6, vat: 19, discPercent: 3, amount: 3370.54 },
     { line: 2, item: "P0002", description: "Product P0002 From Ctr 002", up: 581.26, qty: 9, vat: 19, discPercent: 6, amount: 4917.46 },
     { line: 3, item: "P0003", description: "Product P0003 From Ctr 003", up: 578.39, qty: 12, vat: 19, discPercent: 9, amount: 6316.02 },
     { line: 4, item: "P0004", description: "Product P0004 From Ctr 004", up: 580.52, qty: 15, vat: 19, discPercent: 2, amount: 8533.64 },
@@ -87,12 +97,12 @@ const invoiceData = {
 
     { line: 55, item: "P0055", description: "Product P0055 From Ctr 055", up: 579.15, qty: 15, vat: 19, discPercent: 5, amount: 8252.89 },
     { line: 56, item: "P0056", description: "Product P0056 From Ctr 056", up: 581.28, qty: 18, vat: 19, discPercent: 8, amount: 9626 },
-    { line: 57, item: "P0057", description: "Product P0057 From Ctr 057", up: 578.41, qty: 4, vat: 19, discPercent: 1, amount: 2290.5 },
+/*     { line: 57, item: "P0057", description: "Product P0057 From Ctr 057", up: 578.41, qty: 4, vat: 19, discPercent: 1, amount: 2290.5 },
     { line: 58, item: "P0058", description: "Product P0058 From Ctr 058", up: 580.54, qty: 7, vat: 19, discPercent: 4, amount: 3901.23 },
     { line: 59, item: "P0059", description: "Product P0059 From Ctr 059", up: 577.67, qty: 10, vat: 19, discPercent: 7, amount: 5372.33 },
     { line: 60, item: "P0060", description: "Product P0060 From Ctr 060", up: 579.8, qty: 13, vat: 19, discPercent: 0, amount: 7537.4 },
     { line: 61, item: "P0061", description: "Product P0061 From Ctr 061", up: 581.93, qty: 16, vat: 19, discPercent: 3, amount: 9031.55 },
-/*     { line: 62, item: "P0062", description: "Product P0062 From Ctr 062", up: 579.06, qty: 19, vat: 19, discPercent: 6, amount: 10342.01 },
+    { line: 62, item: "P0062", description: "Product P0062 From Ctr 062", up: 579.06, qty: 19, vat: 19, discPercent: 6, amount: 10342.01 },
    { line: 63, item: "P0063", description: "Product P0063 From Ctr 063", up: 581.19, qty: 5, vat: 19, discPercent: 9, amount: 2644.41 },
     { line: 64, item: "P0064", description: "Product P0064 From Ctr 064", up: 578.32, qty: 8, vat: 19, discPercent: 2, amount: 4534.03 },
     { line: 65, item: "P0065", description: "Product P0065 From Ctr 065", up: 580.45, qty: 11, vat: 19, discPercent: 5, amount: 6065.7 },
