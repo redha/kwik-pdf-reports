@@ -5,7 +5,7 @@ const PDFDocument = require ('pdfkit');
 
 const SIZE = 'A4';
 const MAXX = 595;
-const MAXY = 800;
+const MAXY = 841;
 const MARGIN_TOP = 10;
 const MARGIN_RIGHT = 10;
 const MARGIN_BOTTOM = 10;
@@ -116,7 +116,7 @@ const invoicePDFGenerator = {
         + (isLastRecord ? this.reportFooterHeight : 0)    // on the last record, add report footer too
         + this.pageFooterHeight      > MAXY){
       this.currentPositionY = MARGIN_TOP;
-      this.invoice.addPage({margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
+      this.invoice.addPage({size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
     }
     this.invoice.fontSize(9);
     if(isNaN(line.up)){ // return true when generating details Header  
@@ -144,6 +144,7 @@ const invoicePDFGenerator = {
   
     this.invoice.moveTo(MARGIN_LEFT, this.currentPositionY - ROW_SPACING)
       .lineTo(MAXX - MARGIN_RIGHT, this.currentPositionY - ROW_SPACING)
+      .strokeColor(`#999`)
       .stroke();
   },
   generateReportFooter: function(calculateOnly = false){
@@ -263,16 +264,15 @@ const invoicePDFGenerator = {
   },
   generateInvoice: function (invoiceData, res, resType = 'link'){
     this.data = invoiceData;
-    this.invoice = new PDFDocument({ margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
+    this.invoice = new PDFDocument({ size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
+    this.pageNumber = 1;
     this.invoice.font('Helvetica').lineGap(3);
     this.invoice.info = { Title: 'Invoice #1234', displayTitle: true, Author: 'You', CreationDate: new Date(), Producer: 'Kwik Gestion', Creator: 'Me', Keywords: 'this.invoice, 1234, kwik, You, Me'};
 
     if (resType == 'link'){
       let fileName = `invoice-${new Date().getTime()}.pdf`;
       try{
-        console.log(`fileName is : http://localhost:3000/output/${fileName}`);
         this.invoice.pipe(fs.createWriteStream(`./public/output/${fileName}`));
-
         this.generatePageHeader();
         this.generateReportHeader();
         this.generatePageFooter();
@@ -288,7 +288,10 @@ const invoicePDFGenerator = {
           this.generateDetailsHeader()      
         });
         
-        this.data.content.push({ line: '', item: "#####", description: "  ########## FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discPercent: "######", amount: "###########" });
+        if (this.data.content.length > 0 &&  (this.data.content[this.data.content.length - 1].description != "  ########## FIN ##########  "))
+          {
+            this.data.content.push({ line: '', item: "#####", description: "  ########## FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discPercent: "######", amount: "###########" })
+          }
         
         for (let i = 0; i < this.data.content.length - 1; i++){
           this.generateDetail(this.data.content[i]);
@@ -297,9 +300,7 @@ const invoicePDFGenerator = {
           this.generateDetail(this.data.content[this.data.content.length - 1], true) // check if there no space left for footer sections on last page (it will add a new page if so)
         }
         this.generateReportFooter()
-        this.invoice.end();  
-        console.log(`Fin de la génaration du fichier ......`);
-        console.log(`**************************************`)
+        this.invoice.end();
         return { error: false, resultUri: `http://localhost:3000/output/${fileName}`};
       }
       catch(e){
