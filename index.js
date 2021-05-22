@@ -10,6 +10,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+    console.log(req.body);
+    //res.status(201).send({"error":false,"resultUri":"http://localhost:3000/output/invoice-reponse-model.pdf"});
+    next();
+});
+
 // Allow Cross-Origin *
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:3333");

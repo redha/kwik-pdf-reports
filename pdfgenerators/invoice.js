@@ -46,14 +46,14 @@ const invoicePDFGenerator = {
     this.invoice
     .font(`Helvetica-Bold`)
     .fontSize(2*BODY_FONT_SIZE)
-    .text(this.data.companyName, itemStartAt, this.currentPositionY)
+    .text(this.data.company.companyname, itemStartAt, this.currentPositionY)
     .font(`Helvetica`)
     .fontSize(1.5*BODY_FONT_SIZE)
-    .text(this.data.companyActivity, itemStartAt, this.currentPositionY + 1.7*stepY)
+    .text(this.data.company.companyactivity, itemStartAt, this.currentPositionY + 1.7*stepY)
     .fontSize(BODY_FONT_SIZE)
-    .text(`Capital Social: ${this.data.companyCapital}`, itemStartAt, this.currentPositionY + 3*stepY)
-    .text(`Adresse: ${this.data.companyAddress}`, itemStartAt, this.currentPositionY + 4*stepY)
-    .text(`Tél.: ${this.data.companyPhone} - Email: ${this.data.companyEmail}`, itemStartAt, this.currentPositionY + 5*stepY)
+    .text(`Capital Social: ${this.data.company.companycapital}`, itemStartAt, this.currentPositionY + 3*stepY)
+    .text(`Adresse: ${this.data.company.companyaddress}`, itemStartAt, this.currentPositionY + 4*stepY)
+    .text(`Tél.: ${this.data.company.companyphone} - Email: ${this.data.company.companyemail}`, itemStartAt, this.currentPositionY + 5*stepY)
   
     this.currentPositionY += Math.max(this.currentPositionY + 5*stepY, 50) ;
   
@@ -67,29 +67,29 @@ const invoicePDFGenerator = {
   },
   generateReportHeader: function(){
     this.invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 5);
-    this.invoice.text(`${this.data.docType} ${this.data.reference}`, itemStartAt, this.currentPositionY);
-    let height = this.invoice.heightOfString(`${this.data.docType} ${this.data.reference}`, itemStartAt, this.currentPositionY);
+    this.invoice.text(`${this.data.header.doctype} ${this.data.header.reference}`, itemStartAt, this.currentPositionY);
+    let height = this.invoice.heightOfString(`${this.data.header.doctype} ${this.data.header.reference}`, itemStartAt, this.currentPositionY);
     
     this.invoice.font(`Helvetica`).fontSize(BODY_FONT_SIZE);
-    this.invoice.text(`Date: ${this.data.date}`, discountPercentStartAt, this.currentPositionY, {width: vatPercentStartAt + vatPercentWidth - discountPercentStartAt, align: "right"});
-    height = Math.max(height, this.invoice.heightOfString(`Date: ${this.data.date}`, discountPercentStartAt, this.currentPositionY, {width: MAXX - MARGIN_RIGHT - discountPercentStartAt, align: "right"}) );
+    this.invoice.text(`Date: ${this.data.header.date}`, discountPercentStartAt, this.currentPositionY, {width: vatPercentStartAt + vatPercentWidth - discountPercentStartAt, align: "right"});
+    height = Math.max(height, this.invoice.heightOfString(`Date: ${this.data.header.date}`, discountPercentStartAt, this.currentPositionY, {width: MAXX - MARGIN_RIGHT - discountPercentStartAt, align: "right"}) );
     this.currentPositionY += height + 2*ROW_SPACING;
   
     let initialY = this.currentPositionY - ROW_SPACING;
-    this.invoice.text(`Code: ${this.data.code}`, unitPriceStartAt, this.currentPositionY);
-    this.currentPositionY += this.invoice.heightOfString(`Code: ${this.data.code}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
+    this.invoice.text(`Code: ${this.data.header.code}`, unitPriceStartAt, this.currentPositionY);
+    this.currentPositionY += this.invoice.heightOfString(`Code: ${this.data.header.code}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
   
     this.invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE);
-    this.invoice.text(`${this.data.name}`, unitPriceStartAt, this.currentPositionY);
-    this.currentPositionY += this.invoice.heightOfString(`${this.data.name}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
+    this.invoice.text(`${this.data.header.name}`, unitPriceStartAt, this.currentPositionY);
+    this.currentPositionY += this.invoice.heightOfString(`${this.data.header.name}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
   
     this.invoice.font(`Helvetica`);
-    this.invoice.text(`${this.data.address}`, unitPriceStartAt, this.currentPositionY);
-    this.currentPositionY += this.invoice.heightOfString(`Adresse :  ${this.data.address}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
+    this.invoice.text(`${this.data.header.address}`, unitPriceStartAt, this.currentPositionY);
+    this.currentPositionY += this.invoice.heightOfString(`Adresse :  ${this.data.header.address}`, unitPriceStartAt, this.currentPositionY) + 0.5*ROW_SPACING;
   
     this.invoice.fontSize(BODY_FONT_SIZE - 2);
-    this.invoice.text(`RC:${this.data.RC} - IF: ${this.data.IF} - AI: ${this.data.AI} - NIS:  ${this.data.NIS}`, unitPriceStartAt, this.currentPositionY);
-    this.currentPositionY += this.invoice.heightOfString(`RC:${this.data.RC} - IF: ${this.data.IF} - AI: ${this.data.AI} - NIS:  ${this.data.NIS}`, unitPriceStartAt - 10, this.currentPositionY) + 0.5*ROW_SPACING;
+    this.invoice.text(`RC:${this.data.header.rc} - IF: ${this.data.header.if} - AI: ${this.data.header.ai} - NIS:  ${this.data.header.nis}`, unitPriceStartAt, this.currentPositionY);
+    this.currentPositionY += this.invoice.heightOfString(`RC:${this.data.header.rc} - IF: ${this.data.header.if} - AI: ${this.data.header.ai} - NIS:  ${this.data.company.nis}`, unitPriceStartAt - 10, this.currentPositionY) + 0.5*ROW_SPACING;
     this.invoice
     .lineWidth(0.2)
     .roundedRect(unitPriceStartAt - 5, initialY, MAXX - MARGIN_RIGHT - unitPriceStartAt + 5, this.currentPositionY - initialY, 3)
@@ -99,11 +99,15 @@ const invoicePDFGenerator = {
   },
   generateDetailsHeader: function(){
     this.invoice.font('Helvetica-Bold');
-    this.generateDetail({ line: '#', item: "Code", description: "Description", up: "PU", qty: "Qté", vat: "TVA%", discPercent: "Rem%", amount: "Montant" });
+    this.generateDetail({ line: '#', item: "Code", description: "Description", up: "PU", qty: "Qté", vat: "TVA%", discpercent: "Rem%", amount: "Montant" });
     this.invoice.font('Helvetica');
   },
   generateDetail: function(line, isLastRecord = false){
   
+    console.log(`GENERATING DETAIL LINE`);
+    console.log(line);
+    console.log(`GENERATING DETAIL LINE`);
+
     let textOptions = { lineBreak: true, ellipsis: true };
     let numberOptions = { lineBreak: true, ellipsis: true, align: "right" };
     
@@ -125,7 +129,7 @@ const invoicePDFGenerator = {
       .text(line.description, descriptionStartAt, this.currentPositionY, { width: descriptionWidth, ...textOptions })
       .text(line.up, unitPriceStartAt, this.currentPositionY, { width: unitPriceWidth, ...numberOptions })
       .text(line.qty, qtyStartAt, this.currentPositionY, { width: qtyWidth, ...numberOptions})
-      .text(line.discPercent, discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
+      .text(line.discpercent, discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
       .text(line.amount, amountStartAt, this.currentPositionY, { width: amountWidth, ...numberOptions })
       .text(line.vat, vatPercentStartAt, this.currentPositionY, { width: vatPercentWidth, ...numberOptions });
     }
@@ -135,7 +139,7 @@ const invoicePDFGenerator = {
       .text(line.description, descriptionStartAt, this.currentPositionY, { width: descriptionWidth, ...textOptions })
       .text(line.up.toFixed(2), unitPriceStartAt, this.currentPositionY, { width: unitPriceWidth, ...numberOptions })
       .text(line.qty.toFixed(2), qtyStartAt, this.currentPositionY, { width: qtyWidth, ...numberOptions})
-      .text(line.discPercent.toFixed(2), discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
+      .text(line.discpercent.toFixed(2), discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
       .text(line.amount.toFixed(2), amountStartAt, this.currentPositionY, { width: amountWidth, ...numberOptions })
       .text(line.vat.toFixed(2), vatPercentStartAt, this.currentPositionY, { width: vatPercentWidth, ...numberOptions });
     }
@@ -157,19 +161,19 @@ const invoicePDFGenerator = {
     let startY = MARGIN_TOP; // Let's suppose we'll start at the top of the page
     
     let h1 = this.invoice.heightOfString(`Montant HT`, x1, startY, options1);
-    let h2 = (this.data.discountAmount ? this.invoice.heightOfString(`Remise (${this.data.discountPercent.toFixed(2)}%)`, x1, startY + h1, options1) : 0);
-    let h3 = (this.data.discountAmount ? this.invoice.heightOfString(`Net HT`, x1, startY + h1 + h2, options1) : 0);
+    let h2 = (this.data.footer.discountamount ? this.invoice.heightOfString(`Remise (${this.data.footer.discountpercent.toFixed(2)}%)`, x1, startY + h1, options1) : 0);
+    let h3 = (this.data.footer.discountamount ? this.invoice.heightOfString(`Net HT`, x1, startY + h1 + h2, options1) : 0);
     let h4 = this.invoice.heightOfString(`TVA`, x1, startY + h1 + h2 + h3, options1);
     let h5 = this.invoice.heightOfString(`Timbre`, x1, startY + h1 + h2 + h3 + h4, options1);
     let h6 = this.invoice.heightOfString(`TTC`, x1, startY + h1 + h2 + h3 + h4 + h5, options1);
     
     this.invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
-    h1 = Math.max(h1, this.invoice.heightOfString(this.data.rawAmount.toFixed(2), x2, startY, options2));
-    h2 = Math.max(h2, (this.data.discountAmount ? this.invoice.heightOfString(this.data.discountAmount.toFixed(2), x2, startY + h1, options2) : 0 ));
-    h3 = Math.max(h2, (this.data.discountAmount ? this.invoice.heightOfString(this.data.netAmount.toFixed(2), x2, startY + h1 + h2, options2) : 0 ));
-    h4 = Math.max(h4, this.invoice.heightOfString( this.data.vatAmount.toFixed(2), x2, startY + h1 + h2 + h3, options2));
-    h5 = Math.max(h5, this.invoice.heightOfString( this.data.stampAmount.toFixed(2), x2, startY + h1 + h2 + h3 + h4, options2));
-    h6 = Math.max(h6, this.invoice.heightOfString( this.data.amountit.toFixed(2), x2, startY + h1 + h2 + h3 + h4 + h5, options2));
+    h1 = Math.max(h1, this.invoice.heightOfString(this.data.footer.rawamount.toFixed(2), x2, startY, options2));
+    h2 = Math.max(h2, (this.data.footer.discountamount ? this.invoice.heightOfString(this.data.footer.discountamount.toFixed(2), x2, startY + h1, options2) : 0 ));
+    h3 = Math.max(h2, (this.data.footer.discountamount ? this.invoice.heightOfString(this.data.footer.netamount.toFixed(2), x2, startY + h1 + h2, options2) : 0 ));
+    h4 = Math.max(h4, this.invoice.heightOfString( this.data.footer.vatamount.toFixed(2), x2, startY + h1 + h2 + h3, options2));
+    h5 = Math.max(h5, this.invoice.heightOfString( this.data.footer.stampamount.toFixed(2), x2, startY + h1 + h2 + h3 + h4, options2));
+    h6 = Math.max(h6, this.invoice.heightOfString( this.data.footer.amountit.toFixed(2), x2, startY + h1 + h2 + h3 + h4 + h5, options2));
   
     if (!this.reportFooterHeight){
       this.reportFooterHeight = h1 + h2 + h3 + h4 + h5 + h6 + 2*ROW_SPACING;
@@ -180,8 +184,8 @@ const invoicePDFGenerator = {
   
     this.invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 1);
     this.invoice.text(`Montant HT`, x1, this.currentPositionY);
-    if (this.data.discountAmount){
-      this.invoice.text(`Remise (${this.data.discountPercent.toFixed(2)}%)`, x1, this.currentPositionY + h1, options1);
+    if (this.data.footer.discountamount){
+      this.invoice.text(`Remise (${this.data.footer.discountpercent.toFixed(2)}%)`, x1, this.currentPositionY + h1, options1);
       this.invoice.text(`Net HT`, x1, this.currentPositionY + h1 + h2, options1);
     }
     this.invoice.text(`TVA`, x1, this.currentPositionY + h1 + h2 + h3, options1);
@@ -190,14 +194,14 @@ const invoicePDFGenerator = {
   
   
     this.invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
-    this.invoice.text(this.data.rawAmount.toFixed(2), x2, this.currentPositionY, options2);
-    if (this.data.discountAmount){
-      this.invoice.text(this.data.discountAmount.toFixed(2), x2, this.currentPositionY + h1, options2);
-      this.invoice.text(this.data.netAmount.toFixed(2), x2, this.currentPositionY + h1 + h2, options2);
+    this.invoice.text(this.data.footer.rawamount.toFixed(2), x2, this.currentPositionY, options2);
+    if (this.data.footer.discountamount){
+      this.invoice.text(this.data.footer.discountamount.toFixed(2), x2, this.currentPositionY + h1, options2);
+      this.invoice.text(this.data.footer.netamount.toFixed(2), x2, this.currentPositionY + h1 + h2, options2);
     };
-    this.invoice.text(this.data.vatAmount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3, options2);
-    this.invoice.text(this.data.stampAmount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4, options2);
-    this.invoice.text(this.data.amountit.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
+    this.invoice.text(this.data.footer.vatamount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3, options2);
+    this.invoice.text(this.data.footer.stampamount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4, options2);
+    this.invoice.text(this.data.footer.amountit.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
   
     this.invoice
     .lineWidth(0.2)
@@ -210,9 +214,9 @@ const invoicePDFGenerator = {
     this.invoice.lineWidth(0.3).fontSize(FOOTER_FONT_SIZE);
 
     let line0 = `Page ${this.pageNumber} `;  
-    let line1 = this.data.companyName;
-    let line2 = `Adresse: ${this.data.companyAddress} `;
-    let line3 = `RC: ${this.data.companyRC} - IF: ${this.data.companyIF} - NIS: ${this.data.companyNIS} - AI: ${this.data.companyAI} - Tél: ${this.data.companyPhone} - Email:${this.data.companyEmail} `;
+    let line1 = this.data.company.companyname;
+    let line2 = `Adresse: ${this.data.company.companyaddress} `;
+    let line3 = `RC: ${this.data.company.companyrc} - IF: ${this.data.company.companyif} - NIS: ${this.data.company.companynis} - AI: ${this.data.company.companyai} - Tél: ${this.data.company.companyphone} - Email:${this.data.company.companyemail} `;
   
     this.invoice.fontSize(FOOTER_FONT_SIZE);
     let h0 = this.invoice.heightOfString(line0, MARGIN_RIGHT, MARGIN_TOP, { align: "center", width: MAXX - MARGIN_LEFT - MARGIN_RIGHT });
@@ -229,11 +233,6 @@ const invoicePDFGenerator = {
     console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$`);
     let y = MAXY - (MARGIN_BOTTOM + this.pageFooterHeight);
     this.invoice.fontSize(FOOTER_FONT_SIZE);
-    // this.hr(y);
-    // this.hr(MAXY);
-    // this.hr(MARGIN_TOP);
-    // this.hr(MAXY - 2*MARGIN_BOTTOM);
-    // console.log(`${y} = ${MAXY} - ${MARGIN_BOTTOM} - ${this.pageFooterHeight};`);
     
     this.invoice.text(line0, MARGIN_RIGHT, y, { align: "center", width: MAXX - (MARGIN_LEFT + MARGIN_RIGHT) });
     y += h0;
@@ -262,15 +261,22 @@ const invoicePDFGenerator = {
     .stroke();
     ;
   },
-  generateInvoice: function (invoiceData, res, resType = 'link'){
+  generateInvoice: function (invoiceData, resType = 'link'){
     this.data = invoiceData;
+    // console.log(`DATA IS.....`);
+    // console.log(this.data);
     this.invoice = new PDFDocument({ size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
     this.pageNumber = 1;
     this.invoice.font('Helvetica').lineGap(3);
     this.invoice.info = { Title: 'Invoice #1234', displayTitle: true, Author: 'You', CreationDate: new Date(), Producer: 'Kwik Gestion', Creator: 'Me', Keywords: 'this.invoice, 1234, kwik, You, Me'};
 
+    let randomString = '';
+    for (let i = 0; i <= 7; i++){
+      randomString += String.fromCharCode( Math.round(1024*Math.random()%16, 0) + 97)
+    }
+
     if (resType == 'link'){
-      let fileName = `invoice-${new Date().getTime()}.pdf`;
+      let fileName = `invoice-${randomString}${new Date().getTime()}.pdf`;
       try{
         this.invoice.pipe(fs.createWriteStream(`./public/output/${fileName}`));
         this.generatePageHeader();
@@ -290,7 +296,7 @@ const invoicePDFGenerator = {
         
         if (this.data.content.length > 0 &&  (this.data.content[this.data.content.length - 1].description != "  ########## FIN ##########  "))
           {
-            this.data.content.push({ line: '', item: "#####", description: "  ########## FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discPercent: "######", amount: "###########" })
+            this.data.content.push({ line: '', item: "#####", description: "  ########## FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discpercent: "######", amount: "###########" })
           }
         
         for (let i = 0; i < this.data.content.length - 1; i++){
@@ -304,6 +310,7 @@ const invoicePDFGenerator = {
         return { error: false, resultUri: `http://localhost:3000/output/${fileName}`};
       }
       catch(e){
+        console.trace(e);
         return { error: true, message: e.message};
       }
     }
