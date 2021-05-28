@@ -16,7 +16,7 @@ const detailLeftMargin = 5;
 const itemStartAt = MARGIN_LEFT + detailLeftMargin;
 const itemWidth = 35;
 const descriptionStartAt = itemStartAt + itemWidth + detailLeftMargin;
-const descriptionWidth = 200;
+const descriptionWidth = 215;
 const unitPriceStartAt = descriptionStartAt + descriptionWidth + detailLeftMargin;
 const unitPriceWidth = 65;
 const qtyStartAt = unitPriceStartAt + unitPriceWidth + detailLeftMargin;
@@ -104,9 +104,9 @@ const invoicePDFGenerator = {
   },
   generateDetail: function(line, isLastRecord = false){
   
-    console.log(`GENERATING DETAIL LINE`);
-    console.log(line);
-    console.log(`GENERATING DETAIL LINE`);
+    // console.log(`GENERATING DETAIL LINE`);
+    // console.log(line);
+    // console.log(`GENERATING DETAIL LINE`);
 
     let textOptions = { lineBreak: true, ellipsis: true };
     let numberOptions = { lineBreak: true, ellipsis: true, align: "right" };
@@ -123,26 +123,14 @@ const invoicePDFGenerator = {
       this.invoice.addPage({size: SIZE, margins: { top: MARGIN_TOP, right: MARGIN_RIGHT, bottom: MARGIN_BOTTOM, left: MARGIN_LEFT }});
     }
     this.invoice.fontSize(9);
-    if(isNaN(line.up)){ // return true when generating details Header  
-      this.invoice
-      .text(line.item, itemStartAt, this.currentPositionY, { width: itemWidth, ...textOptions })
-      .text(line.description, descriptionStartAt, this.currentPositionY, { width: descriptionWidth, ...textOptions })
-      .text(line.up, unitPriceStartAt, this.currentPositionY, { width: unitPriceWidth, ...numberOptions })
-      .text(line.qty, qtyStartAt, this.currentPositionY, { width: qtyWidth, ...numberOptions})
-      .text(line.discpercent, discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
-      .text(line.amount, amountStartAt, this.currentPositionY, { width: amountWidth, ...numberOptions })
-      .text(line.vat, vatPercentStartAt, this.currentPositionY, { width: vatPercentWidth, ...numberOptions });
-    }
-    else{
-      this.invoice
-      .text(line.item, itemStartAt, this.currentPositionY, { width: itemWidth, ...textOptions })
-      .text(line.description, descriptionStartAt, this.currentPositionY, { width: descriptionWidth, ...textOptions })
-      .text(line.up.toFixed(2), unitPriceStartAt, this.currentPositionY, { width: unitPriceWidth, ...numberOptions })
-      .text(line.qty.toFixed(2), qtyStartAt, this.currentPositionY, { width: qtyWidth, ...numberOptions})
-      .text(line.discpercent.toFixed(2), discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
-      .text(line.amount.toFixed(2), amountStartAt, this.currentPositionY, { width: amountWidth, ...numberOptions })
-      .text(line.vat.toFixed(2), vatPercentStartAt, this.currentPositionY, { width: vatPercentWidth, ...numberOptions });
-    }
+    this.invoice
+    .text(line.item, itemStartAt, this.currentPositionY, { width: itemWidth, ...textOptions })
+    .text(line.description, descriptionStartAt, this.currentPositionY, { width: descriptionWidth, ...textOptions })
+    .text(line.up, unitPriceStartAt, this.currentPositionY, { width: unitPriceWidth, ...numberOptions })
+    .text(line.qty, qtyStartAt, this.currentPositionY, { width: qtyWidth, ...numberOptions})
+    .text(line.discpercent, discountPercentStartAt, this.currentPositionY, { width: discountPercentWidth, ...numberOptions })
+    .text(line.amount, amountStartAt, this.currentPositionY, { width: amountWidth, ...numberOptions })
+    .text(line.vat, vatPercentStartAt, this.currentPositionY, { width: vatPercentWidth, ...numberOptions });
   
     this.currentPositionY += maxHeight + ROW_SPACING;
   
@@ -151,7 +139,7 @@ const invoicePDFGenerator = {
       .strokeColor(`#999`)
       .stroke();
   },
-  generateReportFooter: function(calculateOnly = false){
+  generateReportFooter: function(calculateOnly){
     const x1 = qtyStartAt;
     const x2 = amountStartAt;
     let options1 = { width: qtyWidth + detailLeftMargin + discountPercentWidth };
@@ -161,19 +149,19 @@ const invoicePDFGenerator = {
     let startY = MARGIN_TOP; // Let's suppose we'll start at the top of the page
     
     let h1 = this.invoice.heightOfString(`Montant HT`, x1, startY, options1);
-    let h2 = (this.data.footer.discountamount ? this.invoice.heightOfString(`Remise (${this.data.footer.discountpercent.toFixed(2)}%)`, x1, startY + h1, options1) : 0);
-    let h3 = (this.data.footer.discountamount ? this.invoice.heightOfString(`Net HT`, x1, startY + h1 + h2, options1) : 0);
+    let h2 = (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00' ? this.invoice.heightOfString(`Remise (${this.data.footer.discountpercent}%)`, x1, startY + h1, options1) : 0);
+    let h3 = (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00'? this.invoice.heightOfString(`Net HT`, x1, startY + h1 + h2, options1) : 0);
     let h4 = this.invoice.heightOfString(`TVA`, x1, startY + h1 + h2 + h3, options1);
     let h5 = this.invoice.heightOfString(`Timbre`, x1, startY + h1 + h2 + h3 + h4, options1);
     let h6 = this.invoice.heightOfString(`TTC`, x1, startY + h1 + h2 + h3 + h4 + h5, options1);
     
     this.invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
-    h1 = Math.max(h1, this.invoice.heightOfString(this.data.footer.rawamount.toFixed(2), x2, startY, options2));
-    h2 = Math.max(h2, (this.data.footer.discountamount ? this.invoice.heightOfString(this.data.footer.discountamount.toFixed(2), x2, startY + h1, options2) : 0 ));
-    h3 = Math.max(h2, (this.data.footer.discountamount ? this.invoice.heightOfString(this.data.footer.netamount.toFixed(2), x2, startY + h1 + h2, options2) : 0 ));
-    h4 = Math.max(h4, this.invoice.heightOfString( this.data.footer.vatamount.toFixed(2), x2, startY + h1 + h2 + h3, options2));
-    h5 = Math.max(h5, this.invoice.heightOfString( this.data.footer.stampamount.toFixed(2), x2, startY + h1 + h2 + h3 + h4, options2));
-    h6 = Math.max(h6, this.invoice.heightOfString( this.data.footer.amountit.toFixed(2), x2, startY + h1 + h2 + h3 + h4 + h5, options2));
+    h1 = Math.max(h1, this.invoice.heightOfString(this.data.footer.rawamount, x2, startY, options2));
+    h2 = Math.max(h2, (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00' ? this.invoice.heightOfString(this.data.footer.discountamount, x2, startY + h1, options2) : 0 ));
+    h3 = Math.max(h2, (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00' ? this.invoice.heightOfString(this.data.footer.netamount, x2, startY + h1 + h2, options2) : 0 ));
+    h4 = Math.max(h4, this.invoice.heightOfString( this.data.footer.vatamount, x2, startY + h1 + h2 + h3, options2));
+    h5 = Math.max(h5, this.invoice.heightOfString( this.data.footer.stampamount, x2, startY + h1 + h2 + h3 + h4, options2));
+    h6 = Math.max(h6, this.invoice.heightOfString( this.data.footer.amountit, x2, startY + h1 + h2 + h3 + h4 + h5, options2));
   
     if (!this.reportFooterHeight){
       this.reportFooterHeight = h1 + h2 + h3 + h4 + h5 + h6 + 2*ROW_SPACING;
@@ -184,8 +172,8 @@ const invoicePDFGenerator = {
   
     this.invoice.font(`Helvetica-Bold`).fontSize(BODY_FONT_SIZE + 1);
     this.invoice.text(`Montant HT`, x1, this.currentPositionY);
-    if (this.data.footer.discountamount){
-      this.invoice.text(`Remise (${this.data.footer.discountpercent.toFixed(2)}%)`, x1, this.currentPositionY + h1, options1);
+    if (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00'){
+      this.invoice.text(`Remise (${this.data.footer.discountpercent}%)`, x1, this.currentPositionY + h1, options1);
       this.invoice.text(`Net HT`, x1, this.currentPositionY + h1 + h2, options1);
     }
     this.invoice.text(`TVA`, x1, this.currentPositionY + h1 + h2 + h3, options1);
@@ -194,14 +182,14 @@ const invoicePDFGenerator = {
   
   
     this.invoice.font('Helvetica').fontSize(BODY_FONT_SIZE + 1);
-    this.invoice.text(this.data.footer.rawamount.toFixed(2), x2, this.currentPositionY, options2);
-    if (this.data.footer.discountamount){
-      this.invoice.text(this.data.footer.discountamount.toFixed(2), x2, this.currentPositionY + h1, options2);
-      this.invoice.text(this.data.footer.netamount.toFixed(2), x2, this.currentPositionY + h1 + h2, options2);
+    this.invoice.text(this.data.footer.rawamount, x2, this.currentPositionY, options2);
+    if (this.data.footer.discountamount != '0.00' && this.data.footer.discountamount != '0,00'){
+      this.invoice.text(this.data.footer.discountamount, x2, this.currentPositionY + h1, options2);
+      this.invoice.text(this.data.footer.netamount, x2, this.currentPositionY + h1 + h2, options2);
     };
-    this.invoice.text(this.data.footer.vatamount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3, options2);
-    this.invoice.text(this.data.footer.stampamount.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4, options2);
-    this.invoice.text(this.data.footer.amountit.toFixed(2), x2, this.currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
+    this.invoice.text(this.data.footer.vatamount, x2, this.currentPositionY + h1 + h2 + h3, options2);
+    this.invoice.text(this.data.footer.stampamount, x2, this.currentPositionY + h1 + h2 + h3 + h4, options2);
+    this.invoice.text(this.data.footer.amountit, x2, this.currentPositionY + h1 + h2 + h3 + h4 + h5, options2);
   
     this.invoice
     .lineWidth(0.2)
@@ -228,9 +216,9 @@ const invoicePDFGenerator = {
     if (!this.pageFooterHeight){
       this.pageFooterHeight = h0 + h1 + h2 + h3 + 2*ROW_SPACING
     }
-    console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$`);
-    console.log(`${this.pageFooterHeight} = ${h0} + ${h1} + ${h2} + ${h3} + ${2*ROW_SPACING}`);
-    console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$`);
+    // console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$`);
+    // console.log(`${this.pageFooterHeight} = ${h0} + ${h1} + ${h2} + ${h3} + ${2*ROW_SPACING}`);
+    // console.log(`$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$`);
     let y = MAXY - (MARGIN_BOTTOM + this.pageFooterHeight);
     this.invoice.fontSize(FOOTER_FONT_SIZE);
     
@@ -296,7 +284,7 @@ const invoicePDFGenerator = {
         
         if (this.data.content.length > 0 &&  (this.data.content[this.data.content.length - 1].description != "  ########## FIN ##########  "))
           {
-            this.data.content.push({ line: '', item: "#####", description: "  ########## FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discpercent: "######", amount: "###########" })
+            this.data.content.push({ line: '', item: "#####", description: "############ FIN ##########  ", up: "#####", qty: "#####", vat: "#####", discpercent: "######", amount: "###########" })
           }
         
         for (let i = 0; i < this.data.content.length - 1; i++){
@@ -305,7 +293,7 @@ const invoicePDFGenerator = {
         if (this.data.content.length > 0){ // check if the content (details) array is not empty
           this.generateDetail(this.data.content[this.data.content.length - 1], true) // check if there no space left for footer sections on last page (it will add a new page if so)
         }
-        this.generateReportFooter()
+        this.generateReportFooter(false)
         this.invoice.end();
         return { error: false, resultUri: `http://localhost:3000/output/${fileName}`};
       }
